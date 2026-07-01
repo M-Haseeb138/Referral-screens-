@@ -105,11 +105,15 @@
   <!-- ============ 2a · PIPELINE ============ -->
   <sc-if value="{{ isPipeline }}" hint-placeholder-val="0">
   <main id="2a" style="padding:18px 26px 30px;scroll-margin-top:16px">
-    <div style="display:flex;gap:5px;margin-bottom:16px;flex-wrap:wrap;align-items:center">
-      <sc-for list="{{ laneChips }}" as="c" hint-placeholder-count="4"><button onClick="{{ c.onClick }}" style="{{ c.style }}" style-hover="background:#F2F3F6"><sc-if value="{{ c.dot }}" hint-placeholder-val="0"><span style="width:6px;height:6px;border-radius:50%;background:{{ c.dot }};display:inline-block"></span></sc-if>{{ c.label }}</button></sc-for>
-      <span style="margin-left:auto;font-size:11px;color:#99A0AB;font-family:'IBM Plex Mono',monospace">SLA from letter date · 7–10 biz days</span>
+    <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;align-items:center">
+      <div style="display:flex;gap:5px;flex-wrap:wrap"><sc-for list="{{ laneChips }}" as="c" hint-placeholder-count="4"><button onClick="{{ c.onClick }}" style="{{ c.style }}" style-hover="background:#F2F3F6"><sc-if value="{{ c.dot }}" hint-placeholder-val="0"><span style="width:6px;height:6px;border-radius:50%;background:{{ c.dot }};display:inline-block"></span></sc-if>{{ c.label }}</button></sc-for></div>
+      <div style="margin-left:auto;display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+        <div style="display:flex;align-items:center;gap:7px;background:#fff;border:1px solid #E4E7EC;border-radius:8px;padding:6px 10px;min-width:184px"><span style="color:#A4ABB5;font-size:12px">⌕</span><input value="{{ search }}" onInput="{{ onSearch }}" placeholder="Search name or ID" style="border:0;background:none;outline:none;font-size:12px;color:#14181F;width:100%"></div>
+        <select value="{{ sort }}" onChange="{{ setSort }}" style="border:1px solid #E4E7EC;border-radius:8px;padding:6px 9px;font-size:12px;color:#14181F;background:#fff;cursor:pointer;font-family:'Inter',sans-serif"><sc-for list="{{ sortOptions }}" as="o" hint-placeholder-count="5"><option value="{{ o.value }}">{{ o.label }}</option></sc-for></select>
+      </div>
     </div>
-    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:14px;align-items:start">
+    <sc-if value="{{ pipeEmpty }}" hint-placeholder-val="0"><div style="border:1px dashed #E4E7EC;border-radius:12px;padding:44px;text-align:center;font-size:13px;color:#A4ABB5">No referrals match this filter.</div></sc-if>
+    <div style="display:grid;grid-template-columns:{{ pipeCols }};gap:14px;align-items:start">
       <sc-for list="{{ stageCols }}" as="col" hint-placeholder-count="5">
         <div style="display:flex;flex-direction:column;gap:10px">
           <div style="display:flex;align-items:center;gap:8px;padding:0 2px 10px;border-bottom:1px solid #ECEEF1">
@@ -132,7 +136,6 @@
               <sc-if value="{{ r.hasFlags }}" hint-placeholder-val="0"><div style="margin-top:9px;display:flex;gap:8px"><sc-for list="{{ r.flags }}" as="fl" hint-placeholder-count="1"><span style="font-family:'IBM Plex Mono',monospace;font-size:8.5px;font-weight:700;letter-spacing:.05em;color:{{ fl.color }}">{{ fl.text }}</span></sc-for></div></sc-if>
             </div>
           </sc-for>
-          <sc-if value="{{ col.empty }}" hint-placeholder-val="0"><div style="border:1px dashed #E4E7EC;border-radius:10px;padding:18px;text-align:center;font-size:11px;color:#C2C8D0">—</div></sc-if>
         </div>
       </sc-for>
     </div>
@@ -162,10 +165,16 @@
         </sc-for>
       </div>
       <div style="background:#fff;border:1px solid #ECEEF1;border-radius:12px;overflow:hidden;box-shadow:0 1px 2px rgba(16,24,40,.03)">
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:11px 16px;border-bottom:1px solid #F2F3F6">
+          <div style="display:flex;align-items:center;gap:7px;background:#F6F7F9;border:1px solid #EDEFF2;border-radius:8px;padding:6px 10px;min-width:200px"><span style="color:#A4ABB5;font-size:12px">⌕</span><input value="{{ search }}" onInput="{{ onSearch }}" placeholder="Search name or ID" style="border:0;background:none;outline:none;font-size:12px;color:#14181F;width:100%"></div>
+          <div style="display:flex;align-items:center;gap:6px"><span style="font-size:11px;color:#99A0AB;font-family:'IBM Plex Mono',monospace">Sort</span><select value="{{ sort }}" onChange="{{ setSort }}" style="border:1px solid #E4E7EC;border-radius:8px;padding:6px 9px;font-size:12px;color:#14181F;background:#fff;cursor:pointer;font-family:'Inter',sans-serif"><sc-for list="{{ sortOptions }}" as="o" hint-placeholder-count="5"><option value="{{ o.value }}">{{ o.label }}</option></sc-for></select></div>
+          <div style="margin-left:auto;display:flex;border:1px solid #E4E7EC;border-radius:8px;overflow:hidden"><button onClick="{{ setListView }}" style="{{ listBtnStyle }}">List</button><button onClick="{{ setCardsView }}" style="{{ cardsBtnStyle }}">Cards</button></div>
+        </div>
+        <sc-if value="{{ isListView }}" hint-placeholder-val="{{ true }}">
         <div style="display:grid;grid-template-columns:{{ towerCols }};gap:14px;padding:11px 18px;border-bottom:1px solid #F2F3F6;font-size:9.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#A4ABB5">
           <span>Referral · Patient</span><span>Specialty · Routed</span><span>Captured</span><span>Lifecycle</span><span>SLA</span><span>SMS</span><span></span>
         </div>
-        <sc-for list="{{ refs }}" as="r" hint-placeholder-count="6">
+        <sc-for list="{{ pagedRefs }}" as="r" hint-placeholder-count="6">
           <div onClick="{{ r.onClick }}" style="{{ r.towerRowStyle }}" style-hover="background:#FAFBFC">
             <div style="min-width:0">
               <div style="display:flex;align-items:center;gap:8px"><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:500;color:#99A0AB">{{ r.id }}</span><sc-for list="{{ r.flags }}" as="fl" hint-placeholder-count="1"><span style="font-family:'IBM Plex Mono',monospace;font-size:8.5px;font-weight:700;letter-spacing:.05em;color:{{ fl.color }}">{{ fl.text }}</span></sc-for></div>
@@ -180,7 +189,27 @@
             <div style="text-align:right;color:#C2C8D0;font-size:14px">›</div>
           </div>
         </sc-for>
-        <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 18px;font-size:11px;color:#99A0AB;font-family:'IBM Plex Mono',monospace"><span>{{ refCount }} of 44 captured</span><span>dashboard ↔ pms in lockstep</span></div>
+        </sc-if>
+        <sc-if value="{{ isCardsView }}" hint-placeholder-val="0">
+        <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;padding:16px">
+          <sc-for list="{{ towerCards }}" as="r" hint-placeholder-count="6">
+            <div onClick="{{ r.onClick }}" style="{{ r.cardStyle }}" style-hover="border-color:#D5DBE2;box-shadow:0 4px 14px rgba(16,24,40,.07);transform:translateY(-1px)">
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:6px"><div style="display:flex;align-items:center;gap:7px"><span style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;font-weight:500;color:#99A0AB">{{ r.id }}</span><sc-for list="{{ r.flags }}" as="fl" hint-placeholder-count="1"><span style="font-family:'IBM Plex Mono',monospace;font-size:8.5px;font-weight:700;letter-spacing:.05em;color:{{ fl.color }}">{{ fl.text }}</span></sc-for></div><span style="width:7px;height:7px;border-radius:50%;background:{{ r.specColor }}"></span></div>
+              <div style="font-size:13px;font-weight:600;color:#14181F;margin-top:7px;letter-spacing:-.01em">{{ r.fullName }}</div>
+              <div style="font-size:11px;color:#99A0AB;margin-top:1px">{{ r.reason }} · {{ r.specialty }}</div>
+              <div style="display:flex;align-items:center;gap:3px;margin-top:11px"><sc-for list="{{ r.stageSegs }}" as="s" hint-placeholder-count="5"><span style="height:3px;flex:1;border-radius:2px;background:{{ s.color }}"></span></sc-for></div>
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px"><span style="font-size:10.5px;font-weight:600;color:#6A727E">{{ r.stageLabel }}</span><span style="display:inline-flex;align-items:center;gap:5px;font-size:10px;color:{{ r.smsColor }}"><span style="width:5px;height:5px;border-radius:50%;background:{{ r.smsColor }}"></span>{{ r.smsLabel }}</span></div>
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:9px"><span style="display:inline-flex;align-items:center;gap:5px;font-size:9.5px;font-weight:600;font-family:'IBM Plex Mono',monospace;color:{{ r.captureTag.color }};background:{{ r.captureTag.bg }};padding:2px 7px;border-radius:5px">{{ r.captureTag.label }}</span><span style="font-size:10px;font-weight:600;color:{{ r.slaColor }};font-family:'IBM Plex Mono',monospace">{{ r.slaShort }}</span></div>
+            </div>
+          </sc-for>
+        </div>
+        </sc-if>
+        <sc-if value="{{ towerEmpty }}" hint-placeholder-val="0"><div style="padding:44px;text-align:center;font-size:13px;color:#A4ABB5">No referrals match this filter.</div></sc-if>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:11px 16px;border-top:1px solid #F2F3F6;font-size:11px;color:#99A0AB;font-family:'IBM Plex Mono',monospace">
+          <span>{{ pager.from }}–{{ pager.to }} of {{ pager.total }}</span>
+          <sc-if value="{{ pager.showPager }}" hint-placeholder-val="0"><div style="display:flex;align-items:center;gap:5px"><button onClick="{{ pager.prev }}" style="{{ pager.btnStyle }}">‹</button><sc-for list="{{ pager.pageNums }}" as="p" hint-placeholder-count="2"><button onClick="{{ p.onClick }}" style="{{ p.style }}">{{ p.n }}</button></sc-for><button onClick="{{ pager.next }}" style="{{ pager.btnStyle }}">›</button></div></sc-if>
+          <span>dashboard ↔ pms in lockstep</span>
+        </div>
       </div>
     </div>
   </main>
@@ -232,6 +261,7 @@
 class Component extends DCLogic {
   state = {
     variant: null, view: 'queue', lane: 'all', search: '',
+    sort: 'sla', viewMode: 'list', page: 1,
     openId: null, reviewId: null, toast: null,
     referrals: [
       { id:'WSC-004', title:'Miss', name:'Kristyn Mcinherney-Grubb', specialty:'Gynaecology', clinician:'Dr Preeti Khillan', reason:'gynaecology assessment', stageIdx:1, slaDay:8, slaTotal:10, slaState:'due', sms:'sent', capture:'text', dob:'17/02/1998', medicare:'3507 986 883', mobile:'0451 105 681', clinic:'Moonee Ponds Super Clinic', letterDate:'27/06/2026', dup:3 },
@@ -250,8 +280,13 @@ class Component extends DCLogic {
 
   pick = (v) => this.setState({ variant:v, openId:null });
   setView = (v) => this.setState({ view:v });
-  setLane = (k) => this.setState({ lane:k });
-  onSearch = (e) => this.setState({ search:e.target.value });
+  setLane = (k) => this.setState({ lane:k, page:1 });
+  onSearch = (e) => this.setState({ search:e.target.value, page:1 });
+  setSort = (e) => this.setState({ sort: (e&&e.target)?e.target.value:e, page:1 });
+  setViewMode = (m) => this.setState({ viewMode:m });
+  setListView = () => this.setState({ viewMode:'list' });
+  setCardsView = () => this.setState({ viewMode:'cards' });
+  setPage = (p) => this.setState({ page:p });
   stop = (e) => e.stopPropagation();
   select = (id) => this.setState({ openId:id });
   closeOverlay = () => this.setState({ openId:null });
@@ -312,7 +347,7 @@ class Component extends DCLogic {
   renderVals(){
     const accent = this.props.accent || '#1E5E8B';
     const variant = this.state.variant || this.props.defaultVariant || 'pipeline';
-    const { view, lane, search } = this.state;
+    const { view, lane, search, sort, viewMode, page } = this.state;
     const onQueue = view==='queue';
     const isPipeline=variant==='pipeline'&&onQueue, isTower=variant==='tower'&&onQueue;
 
@@ -340,10 +375,28 @@ class Component extends DCLogic {
       if(lane!=='all') return r.specialty===lane;
       return true;
     });
+    const dnum=(d)=>{ const m=(d||'').split('/'); return m.length===3?(+m[2])*10000+(+m[1])*100+(+m[0]):0; };
+    const slaRank=(r)=> r.slaState==='breached'?0 : r.slaState==='due'?1 : r.slaState==='ok'?2 : 3;
+    const sorters={ sla:(a,b)=>slaRank(a)-slaRank(b)||a.slaDay-b.slaDay, letter:(a,b)=>dnum(a.letterDate)-dnum(b.letterDate), name:(a,b)=>a.name.localeCompare(b.name), specialty:(a,b)=>a.specialty.localeCompare(b.specialty)||a.name.localeCompare(b.name), stage:(a,b)=>a.stageIdx-b.stageIdx };
+    refsRaw = refsRaw.slice().sort(sorters[sort]||sorters.sla);
     const refs = refsRaw.map(r=>this.decorate(r,accent));
 
     const stageBar=['#1D4ED8','#0891B2','#7C3AED','#DB2777','#198F54'];
-    const stageCols = this.LIFE.map((l,i)=>{ const cr=refs.filter(r=>r.stageIdx===i); return { label:l, count:cr.length, refs:cr, barColor:stageBar[i], empty: cr.length?0:1 }; });
+    const stageCols = this.LIFE.map((l,i)=>{ const cr=refs.filter(r=>r.stageIdx===i); return { label:l, count:cr.length, refs:cr, barColor:stageBar[i] }; }).filter(c=>c.count>0);
+    const pipeCols=`repeat(${Math.max(1,stageCols.length)},minmax(0,1fr))`;
+
+    const sortOptions=[{value:'sla',label:'SLA urgency'},{value:'letter',label:'Letter date'},{value:'name',label:'Patient name'},{value:'specialty',label:'Specialty'},{value:'stage',label:'Lifecycle stage'}];
+    const tbtn=(active)=>`border:0;padding:6px 13px;font-size:11.5px;font-weight:600;cursor:pointer;${active?'background:#14181F;color:#fff':'background:#fff;color:#6A727E'}`;
+    const listBtnStyle=tbtn(viewMode==='list');
+    const cardsBtnStyle='border-left:1px solid #E4E7EC;'+tbtn(viewMode==='cards');
+    const PAGE=6;
+    const pageCount=Math.max(1,Math.ceil(refs.length/PAGE));
+    const curPage=Math.min(page,pageCount);
+    const pagedRefs=refs.slice((curPage-1)*PAGE,curPage*PAGE);
+    const towerCards=pagedRefs.map(r=>({ ...r, cardStyle:`background:#fff;border:1px solid ${r.slaState==='breached'?'#EFCFCF':'#ECEEF1'};border-radius:11px;padding:14px 15px;cursor:pointer;transition:transform .14s ease,box-shadow .14s ease,border-color .14s ease` }));
+    const pageNums=[]; for(let i=1;i<=pageCount;i++){ const on=i===curPage; pageNums.push({ n:i, onClick:()=>this.setPage(i), style:`min-width:26px;height:26px;border:1px solid ${on?'#14181F':'#E4E7EC'};background:${on?'#14181F':'#fff'};color:${on?'#fff':'#6A727E'};border-radius:7px;font-size:11.5px;font-weight:600;cursor:pointer;font-family:'IBM Plex Mono',monospace` }); }
+    const pgBtn=`min-width:26px;height:26px;border:1px solid #E4E7EC;background:#fff;color:#6A727E;border-radius:7px;font-size:12px;cursor:pointer`;
+    const pager={ from: refs.length?((curPage-1)*PAGE+1):0, to: Math.min(curPage*PAGE,refs.length), total: refs.length, pageNums, prev:()=>this.setPage(Math.max(1,curPage-1)), next:()=>this.setPage(Math.min(pageCount,curPage+1)), btnStyle:pgBtn, showPager: pageCount>1?1:0 };
 
     const breached=this.state.referrals.filter(r=>r.slaState==='breached').length;
     const review=this.state.referrals.filter(r=>r.capture==='ocr'||r.capture==='ocr-img'||r.slaState==='breached'||r.dup).length;
@@ -397,6 +450,10 @@ class Component extends DCLogic {
     return {
       accent, isPipeline, isTower, showInbox,
       hubTabs, viewTabs, switcher, laneChips, refs, refCount:refs.length, stageCols, kpis, railGroups,
+      pipeCols, pipeEmpty: stageCols.length===0?1:0,
+      sort, setSort:this.setSort, sortOptions, listBtnStyle, cardsBtnStyle, setListView:this.setListView, setCardsView:this.setCardsView,
+      isListView: (viewMode==='list'&&refs.length>0)?1:0, isCardsView: (viewMode==='cards'&&refs.length>0)?1:0, towerEmpty: refs.length===0?1:0,
+      pagedRefs, towerCards, pager,
       catFilters, emails, towerCols:this.TOWER_COLS, search,
       openRef,
       overlayOpen: isPipeline && this.state.openId ? 1 : 0,
