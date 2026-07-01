@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  @keyframes rsPulse{0%{box-shadow:0 0 0 0 rgba(30,94,139,.4)}70%{box-shadow:0 0 0 7px rgba(30,94,139,0)}100%{box-shadow:0 0 0 0 rgba(30,94,139,0)}}
+  @keyframes rsMark{0%{background:#1E5E8B;color:#fff}100%{}}
+  @keyframes rsIn{from{opacity:0}to{opacity:1}}
+  @media (prefers-reduced-motion: reduce){*{animation:none !important;transition:none !important}}
+</style>
+</helmet>
+<div style="display:flex;flex-direction:column;height:100%;background:#fff;font-family:'Inter',system-ui,sans-serif;color:#14181F">
+
+  <!-- header -->
+  <div style="display:flex;align-items:center;justify-content:space-between;gap:14px;padding:18px 24px;border-bottom:1px solid #ECEEF1;background:#fff">
+    <div style="display:flex;align-items:center;gap:13px">
+      <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;letter-spacing:.02em;color:#fff;background:#0F172A;padding:4px 9px;border-radius:6px">{{ ref.id }}</span>
+      <div>
+        <div style="font-size:15px;font-weight:650;letter-spacing:-.015em;color:#14181F">{{ ref.fullName }}</div>
+        <div style="font-size:12px;color:#828A97;margin-top:1px">{{ ref.reason }} · {{ ref.specialty }} → {{ ref.clinician }}</div>
+      </div>
+    </div>
+    <sc-if value="{{ showClose }}" hint-placeholder-val="0"><button onClick="{{ onClose }}" style="border:1px solid #E4E7EC;background:#fff;width:32px;height:32px;border-radius:8px;cursor:pointer;color:#828A97;font-size:14px;line-height:1;transition:background .12s" style-hover="background:#F6F7F9">✕</button></sc-if>
+  </div>
+
+  <!-- identity match strip -->
+  <div style="{{ matchStripStyle }}">
+    <span style="font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase">{{ matchTitle }}</span>
+    <div style="display:flex;gap:6px;margin-left:auto">
+      <sc-for list="{{ matchChips }}" as="c" hint-placeholder-count="3"><span style="{{ c.style }}">{{ c.mark }} {{ c.label }}</span></sc-for>
+    </div>
+  </div>
+
+  <div style="flex:1;min-height:0;overflow-y:auto;padding:22px 24px;animation:rsIn .24s ease">
+    <div style="display:grid;grid-template-columns:{{ gridCols }};gap:22px;align-items:start">
+
+      <!-- LEFT: source document -->
+      <div style="display:flex;flex-direction:column;gap:9px;min-width:0">
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <span style="font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#A4ABB5">Source document · proof point</span>
+          <span style="{{ captureStyle }}">{{ captureLabel }}</span>
+        </div>
+        <sc-if value="{{ ref.dup }}" hint-placeholder-val="0">
+          <div style="font-size:11.5px;color:#6B5E2E;background:#FCF6E6;border:1px solid #EBDBA8;border-radius:8px;padding:8px 11px;line-height:1.5"><b>Duplicate · {{ ref.dup }} copies</b> received 28–30 Jun. Earliest letter date drives the SLA clock; copies linked.</div>
+        </sc-if>
+        <div style="background:#FCFCFD;border:1px solid #ECEEF1;border-radius:10px;padding:22px 24px;font-size:12.5px;line-height:1.95;color:#3A414C;white-space:pre-wrap">
+          <sc-if value="{{ sourceKind }}" hint-placeholder-val="0">
+            <div style="margin-bottom:15px">
+              <div style="height:122px;border-radius:8px;border:1px solid #E4E7EC;background:repeating-linear-gradient(135deg,#F4F5F8,#F4F5F8 9px,#ECEEF1 9px,#ECEEF1 18px);display:flex;align-items:center;justify-content:center">
+                <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;color:#8A94A6;background:#fff;border:1px solid #E4E7EC;padding:6px 12px;border-radius:6px">{{ sourceKind.fileLabel }}</span>
+              </div>
+              <div style="font-size:9.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#9D174D;margin-top:11px">OCR extract · verify against image above</div>
+            </div>
+          </sc-if>
+          <div style="font-size:10.5px;color:#A3ACBA;margin-bottom:13px;font-style:italic">Click any highlighted value to locate its extracted field.</div>
+          <sc-for list="{{ letter }}" as="seg" hint-placeholder-count="22"><span onClick="{{ seg.onClick }}" style="{{ seg.style }}">{{ seg.text }}</span></sc-for>
+        </div>
+      </div>
+
+      <!-- RIGHT: extracted fields + sms + action -->
+      <div style="display:flex;flex-direction:column;gap:14px;min-width:0">
+        <span style="font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#A4ABB5">Extracted fields · review &amp; confirm</span>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px">
+          <sc-for list="{{ fields }}" as="f" hint-placeholder-count="8">
+            <div style="{{ f.wrapStyle }}">
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:6px">
+                <span onClick="{{ f.onClick }}" style="font-size:9px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#A4ABB5;cursor:pointer">{{ f.label }}</span>
+                <sc-if value="{{ f.tag }}" hint-placeholder-val="0"><span style="{{ f.tagStyle }}">{{ f.tag }}</span></sc-if>
+              </div>
+              <div style="font-size:13.5px;font-weight:600;color:{{ f.valueColor }};margin-top:4px;font-family:{{ f.valueFont }}">{{ f.value }}</div>
+              <sc-if value="{{ f.showVerify }}" hint-placeholder-val="0"><button onClick="{{ onVerify }}" style="margin-top:8px;width:100%;border:1px solid #E0B650;background:#FFFBF2;color:#92400E;font-size:11px;font-weight:700;letter-spacing:.01em;padding:7px 0;border-radius:7px;cursor:pointer;transition:background .12s" style-hover="background:#FCF3DD">Verify Medicare → complete match</button></sc-if>
+            </div>
+          </sc-for>
+        </div>
+
+        <!-- sms -->
+        <div style="background:#14181F;border-radius:11px;padding:15px 17px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+            <span style="font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#7C8BA0">Patient acknowledgement SMS</span>
+            <span style="{{ smsStateStyle }}">{{ smsStateLabel }}</span>
+          </div>
+          <div style="background:#1E232E;border-radius:8px;padding:13px 14px;font-size:12.5px;line-height:1.65;color:#E7ECF3">{{ smsText }}</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-top:9px">
+            <span style="font-size:10.5px;color:#64748B;font-family:'IBM Plex Mono',monospace">→ {{ ref.mobile }}</span>
+            <sc-if value="{{ showRetry }}" hint-placeholder-val="0"><button onClick="{{ onRetry }}" style="border:1px solid #4A2530;background:#2A1820;color:#FCA5A5;font-size:11px;font-weight:600;padding:5px 11px;border-radius:7px;cursor:pointer">Retry send</button></sc-if>
+          </div>
+        </div>
+
+        <!-- primary action -->
+        <div style="display:flex;gap:9px;flex-wrap:wrap">
+          <button onClick="{{ onPrimary }}" style="{{ primaryStyle }}" style-hover="filter:brightness(.93)">{{ primaryLabel }}</button>
+          <button onClick="{{ onClose }}" style="border:1px solid #E4E7EC;background:#fff;color:#5A6573;font-size:12.5px;font-weight:600;padding:0 16px;height:42px;border-radius:9px;cursor:pointer;transition:background .12s" style-hover="background:#F6F7F9">Save draft</button>
+        </div>
+        <div style="font-size:10.5px;color:#9AA5B2;line-height:1.5">OCR / low-confidence fields are never auto-pushed to the PMS — a person confirms first. The source email is retained as the evidentiary record.</div>
+      </div>
+
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:900,&quot;height&quot;:640},&quot;referral&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;any&quot;},&quot;accent&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;default&quot;:&quot;#1E5E8B&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;layout&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;default&quot;:&quot;split&quot;,&quot;options&quot;:[&quot;split&quot;,&quot;stack&quot;],&quot;tsType&quot;:&quot;string&quot;},&quot;embedded&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;},&quot;onAdvance&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;function&quot;},&quot;onVerify&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;function&quot;},&quot;onRetry&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;function&quot;},&quot;onClose&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;function&quot;}}">
+class Component extends DCLogic {
+  state = { hf:null };
+  LANES = { 'Paediatrics':{c:'#0284C7',t:'#0369A1'}, 'Gynaecology':{c:'#DB2777',t:'#9D174D'}, 'Pelvic Physio':{c:'#7C3AED',t:'#6D28D9'} };
+  LIFE = ['New','Acknowledged','In PMS','Booked','Completed'];
+
+  highlight = (f) => { this.setState({ hf:f }); clearTimeout(this._t); this._t=setTimeout(()=>this.setState({hf:null}),1100); };
+
+  buildLetter(r, hf, verified){
+    const full=(r.title?r.title+' ':'')+r.name;
+    const segs=[]; let k=0;
+    const txt=(t)=>segs.push({text:t,style:'white-space:pre-wrap',onClick:null,key:'t'+(k++)});
+    const fld=(field,t)=>{
+      const active=hf===field;
+      let base;
+      if(field==='medicare'&&!verified) base='background:#FBF1D6;color:#92400E;box-shadow:inset 0 -2px 0 #E0B650';
+      else if(field==='name'||field==='dob') base='background:#E3F4EA;color:#15693E;box-shadow:inset 0 -2px 0 #6FBF95';
+      else base='background:#E7F0F7;color:#1E5E8B;box-shadow:inset 0 -2px 0 #9CC2DC';
+      const style=active
+        ? 'background:#1E5E8B;color:#fff;border-radius:3px;padding:0 4px;cursor:pointer;font-weight:600;animation:rsMark .9s ease'
+        : base+';border-radius:3px;padding:0 4px;cursor:pointer;font-weight:600';
+      segs.push({text:t,style,onClick:()=>this.highlight(field),key:'f'+field+(k++)});
+    };
+    txt(r.clinic+'\n'); txt('—'.repeat(28)+'\n'); txt('Date: '); fld('letterDate',r.letterDate); txt('\n\n');
+    txt('Dear '); fld('clinician',r.clinician); txt(',\n\n');
+    txt('RE: '); fld('name',full); txt('\n'); txt('DOB '); fld('dob',r.dob); txt('   Medicare '); fld('medicare',r.medicare); txt('\n'); txt('Mobile '); fld('mobile',r.mobile); txt('\n\n');
+    txt('Thank you for seeing this patient. I would appreciate your opinion and management of '); fld('reason',r.reason);
+    txt('. Symptoms have been ongoing and the patient is keen to be reviewed. Kindly contact the patient directly to arrange a suitable time.\n\nKind regards,\nReferring GP');
+    return segs;
+  }
+
+  buildFields(r, hf, verified){
+    const full=(r.title?r.title+' ':'')+r.name;
+    const lane=this.LANES[r.specialty]||this.LANES.Paediatrics;
+    const ring=(f)=> hf===f ? 'box-shadow:0 0 0 2px rgba(30,94,139,.35);animation:rsPulse 1s ease;' : '';
+    const wrap=(f,tone)=>{
+      let edge='border-left:2px solid #CBD5E1;';
+      if(tone==='green') edge='border-left:2px solid #6FBF95;';
+      if(tone==='amber') edge='border-left:2px solid #E0B650;background:#FEFBF3;';
+      return 'background:#fff;border:1px solid #E9EEF3;'+edge+'border-radius:8px;padding:9px 11px;'+ring(f);
+    };
+    const mono="'IBM Plex Mono',monospace";
+    const mk=(f,label,value,o={})=>({label,value,onClick:()=>this.highlight(f),wrapStyle:wrap(f,o.tone),valueColor:o.vc||'#0F172A',valueFont:o.mono?mono:"'Inter',sans-serif",tag:o.tag||0,tagStyle:o.tagStyle||'',showVerify:o.verify?1:0});
+    const okTag='font-size:9px;font-weight:700;color:#15693E;letter-spacing:.04em';
+    const amTag='font-size:9px;font-weight:700;color:#92400E;letter-spacing:.04em';
+    const held = (r.medicareConf!=null && r.medicareConf<0.9) && !verified;
+    return [
+      mk('name','Patient name',full,{tone:'green',tag:'✓ MATCH',tagStyle:okTag}),
+      mk('dob','Date of birth',r.dob,{tone:'green',tag:'✓ MATCH',tagStyle:okTag,mono:true}),
+      mk('medicare','Medicare',r.medicare, held
+        ? {tone:'amber',vc:'#92400E',mono:true,tag:Math.round((r.medicareConf||0)*100)+'% · HELD',tagStyle:amTag,verify:true}
+        : {tone:'green',vc:'#0F172A',mono:true,tag:'✓ VERIFIED',tagStyle:okTag}),
+      mk('mobile','Mobile',r.mobile,{mono:true}),
+      mk('specialty','Specialty · routing',r.specialty,{vc:lane.t}),
+      mk('clinician','Routed to',r.clinician,{}),
+      mk('reason','Clinical reason',r.reason,{}),
+      mk('letterDate','Letter date · SLA start',r.letterDate,{mono:true}),
+    ];
+  }
+
+  renderVals(){
+    const r=this.props.referral;
+    const accent=this.props.accent||'#1E5E8B';
+    if(!r) return { ref:{id:'',fullName:'',reason:'',specialty:'',clinician:'',mobile:'',dup:0}, letter:[], fields:[], matchChips:[], gridCols:'1fr 1fr', matchStripStyle:'display:none', captureLabel:'', captureStyle:'', smsText:'', primaryLabel:'', primaryStyle:'display:none', showClose:0, showRetry:0, showVerify:0 };
+    const hf=this.state.hf;
+    const verified = r.medicareConf==null || r.medicareConf>=0.9;
+    const matched = 2 + (verified?1:0);
+    const full = (r.title?r.title+' ':'')+r.name;
+    const ref={ id:r.id, fullName:full, reason:r.reason, specialty:r.specialty, clinician:r.clinician, mobile:r.mobile, dup:r.dup||0 };
+
+    const chip=(ok,label)=>({ mark:ok?'✓':'○', label, style:`display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:700;padding:2px 7px;border-radius:5px;${ok?'color:#15693E;background:#E3F4EA':'color:#92400E;background:#FBF1D6'}` });
+
+    const capMap={ text:['Native text PDF','#15693E','#E3F4EA'], ocr:['Scanned · OCR — verify','#92400E','#FBF1D6'], 'ocr-img':['Image · OCR','#9D174D','#FBE3EA'] };
+    const cap=capMap[r.capture]||capMap.text;
+    const sourceKind = r.capture==='text' ? 0 : { fileLabel: r.capture==='ocr-img'?'PHONE PHOTO · IMG_4827.jpg':'SCANNED FAX · 3 pages', note:'OCR extract — verify each field against the original.' };
+
+    // stage-aware primary action
+    const stage=r.stageIdx;
+    let pLabel, pEnabled=true;
+    if(stage===0){ pLabel='Confirm & acknowledge patient'; pEnabled=verified; }
+    else if(stage===1){ pLabel='Push to PMS'; }
+    else if(stage===2){ pLabel='Mark as booked'; }
+    else if(stage===3){ pLabel='Mark completed'; }
+    else { pLabel='Referral completed'; pEnabled=false; }
+    const primaryStyle = pEnabled
+      ? `flex:1;min-width:200px;height:42px;border:0;background:${accent};color:#fff;font-size:13px;font-weight:650;border-radius:9px;cursor:pointer`
+      : `flex:1;min-width:200px;height:42px;border:0;background:#D5DCE4;color:#fff;font-size:13px;font-weight:650;border-radius:9px;cursor:not-allowed`;
+
+    const smsSent = r.sms==='sent';
+    const smsFailed = r.sms==='failed';
+    const smsStateLabel = smsSent?'Sent':smsFailed?'Failed':'Will send on confirm';
+    const smsStateStyle = `font-size:10px;font-weight:700;padding:2px 8px;border-radius:5px;${smsSent?'color:#6FE3A6;background:rgba(111,227,166,.12)':smsFailed?'color:#FCA5A5;background:rgba(252,165,165,.12)':'color:#9FB0C4;background:rgba(159,176,196,.1)'}`;
+
+    return {
+      ref, accent,
+      showClose: this.props.embedded ? 0 : 1,
+      onClose: this.props.onClose || (()=>{}),
+      matchTitle: matched===3 ? 'Identity verified · 3 of 3' : `Identity match · ${matched} of 3`,
+      matchStripStyle: `display:flex;align-items:center;gap:10px;padding:9px 22px;border-bottom:1px solid ${matched===3?'#CDEBD8':'#F0E3BE'};background:${matched===3?'#F1FAF4':'#FCF8EC'};color:${matched===3?'#15693E':'#92400E'}`,
+      matchChips: [ chip(true,'Name'), chip(true,'DOB'), chip(verified,'Medicare') ],
+      captureLabel: cap[0], captureStyle:`font-size:10px;font-weight:700;color:${cap[1]};background:${cap[2]};padding:2px 8px;border-radius:5px`,
+      sourceKind,
+      letter: this.buildLetter(r,hf,verified),
+      fields: this.buildFields(r,hf,verified),
+      onVerify: ()=> this.props.onVerify && this.props.onVerify(r.id),
+      smsStateLabel, smsStateStyle,
+      smsText: `Hi ${r.name.split(' ')[0]}, thanks — we've received your referral to Western Specialist Centre. Your reference ID is ${r.id}. Our team will process this within 7–10 business days. — WSC Team.`,
+      showRetry: smsFailed?1:0,
+      onRetry: ()=> this.props.onRetry && this.props.onRetry(r.id),
+      primaryLabel: pLabel, primaryStyle, onPrimary: ()=> { if(pEnabled && this.props.onAdvance) this.props.onAdvance(r.id); },
+      gridCols: this.props.layout==='stack' ? '1fr' : '1.05fr 1fr',
+    };
+  }
+}
+</script>
+</body>
+</html>

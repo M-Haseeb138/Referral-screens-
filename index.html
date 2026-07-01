@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;450;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{font-family:'Inter',system-ui,-apple-system,sans-serif;background:#F6F7F9;color:#14181F;-webkit-font-smoothing:antialiased;font-feature-settings:'tnum' 1,'cv05' 1,'ss01' 1}
+  @keyframes ahSlide{from{transform:translateX(34px);opacity:0}to{transform:translateX(0);opacity:1}}
+  @keyframes ahPop{from{transform:translateY(10px) scale(.985);opacity:0}to{transform:translateY(0) scale(1);opacity:1}}
+  @keyframes ahUp{from{transform:translateY(8px);opacity:0}to{transform:translateY(0);opacity:1}}
+  ::-webkit-scrollbar{width:10px;height:10px}
+  ::-webkit-scrollbar-thumb{background:#DCE0E6;border-radius:9999px;border:3px solid #fff}
+  ::-webkit-scrollbar-track{background:transparent}
+  @media (prefers-reduced-motion: reduce){*{animation:none !important;transition:none !important}}
+</style>
+</helmet>
+<template id="__bundler_thumbnail" data-bg-color="#F6F7F9">
+  <svg viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+    <rect width="1200" height="800" fill="#F6F7F9"/>
+    <rect x="330" y="250" width="540" height="320" rx="30" fill="#ffffff" stroke="#E4E7EC" stroke-width="4"/>
+    <circle cx="372" cy="312" r="9" fill="#1E5E8B"/>
+    <rect x="392" y="304" width="150" height="16" rx="8" fill="#14181F"/>
+    <rect x="362" y="360" width="420" height="11" rx="5" fill="#E6E9ED"/>
+    <rect x="362" y="392" width="380" height="11" rx="5" fill="#E6E9ED"/>
+    <rect x="362" y="470" width="180" height="40" rx="11" fill="#1E5E8B"/>
+    <rect x="690" y="300" width="44" height="14" rx="4" fill="#198F54"/>
+  </svg>
+</template>
+<div style="min-height:100vh;background:#F6F7F9;display:flex;flex-direction:column">
+
+  <!-- ===== WSC HEADER ===== -->
+  <header style="display:flex;align-items:center;justify-content:space-between;padding:12px 24px;background:#fff;border-bottom:1px solid #ECEEF1">
+    <div style="display:flex;align-items:center;gap:11px">
+      <div style="width:28px;height:28px;border-radius:7px;background:#14181F;display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:700">W</div>
+      <div>
+        <div style="font-size:13.5px;font-weight:600;letter-spacing:-.01em;color:#14181F;white-space:nowrap">AI Switchboard Dashboard</div>
+        <div style="font-size:11px;color:#99A0AB">Western Specialist Centre</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:13px">
+      <span style="display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:550;color:#198F54"><span style="width:6px;height:6px;border-radius:50%;background:#22C55E;display:inline-block;box-shadow:0 0 0 3px rgba(34,197,94,.14)"></span>Live</span>
+      <span style="font-size:11px;font-weight:450;color:#828A97;font-family:'IBM Plex Mono',monospace">PMS · synced 2m</span>
+      <div style="width:28px;height:28px;border-radius:50%;background:#14181F;display:flex;align-items:center;justify-content:center;color:#fff;font-size:10.5px;font-weight:600">SA</div>
+    </div>
+  </header>
+
+  <!-- ===== ACTION HUB CONTEXT TABS ===== -->
+  <div style="display:flex;align-items:center;gap:16px;padding:0 24px;background:#fff;border-bottom:1px solid #ECEEF1">
+    <span style="font-size:12.5px;font-weight:600;color:#14181F;padding:12px 0">Action Hub</span>
+    <div style="display:flex;gap:1px">
+      <sc-for list="{{ hubTabs }}" as="t" hint-placeholder-count="6"><span style="{{ t.style }}">{{ t.label }}</span></sc-for>
+    </div>
+  </div>
+
+  <!-- ===== SUB-HEADER ===== -->
+  <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:18px;flex-wrap:wrap;padding:22px 26px 0">
+    <div>
+      <h1 style="margin:0;font-size:21px;font-weight:650;letter-spacing:-.025em;color:#14181F">Email Triage &amp; Referrals</h1>
+      <p style="margin:6px 0 0;font-size:12.5px;color:#828A97;letter-spacing:-.005em">Captured from Outlook in the background · the dashboard is the source of truth, the email stays the proof point.</p>
+    </div>
+    <div style="display:flex;align-items:center;gap:18px">
+      <div style="display:flex;gap:16px">
+        <sc-for list="{{ viewTabs }}" as="v" hint-placeholder-count="2"><button onClick="{{ v.onClick }}" style="{{ v.style }}" style-hover="color:#14181F">{{ v.label }}</button></sc-for>
+      </div>
+      <div style="display:flex;border:1px solid #E4E7EC;border-radius:9px;overflow:hidden;background:#fff;box-shadow:0 1px 2px rgba(16,24,40,.03)">
+        <sc-for list="{{ switcher }}" as="o" hint-placeholder-count="2"><button onClick="{{ o.onClick }}" style="{{ o.style }}"><span style="{{ o.idStyle }}">{{ o.id }}</span>{{ o.name }}</button></sc-for>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ INBOX ============ -->
+  <sc-if value="{{ showInbox }}" hint-placeholder-val="0">
+  <main style="padding:18px 26px 40px">
+    <div style="display:flex;align-items:center;gap:6px;margin-bottom:14px;flex-wrap:wrap">
+      <sc-for list="{{ catFilters }}" as="p" hint-placeholder-count="5"><button onClick="{{ p.onClick }}" style="{{ p.style }}" style-hover="color:#14181F">{{ p.label }}<sc-if value="{{ p.count }}" hint-placeholder-val="0"><span style="{{ p.countStyle }}">{{ p.count }}</span></sc-if></button></sc-for>
+    </div>
+    <div style="background:#fff;border:1px solid #ECEEF1;border-radius:12px;overflow:hidden;box-shadow:0 1px 2px rgba(16,24,40,.03)">
+      <div style="display:grid;grid-template-columns:2.5fr 1fr 1.2fr 0.9fr 1.1fr 0.7fr;gap:14px;padding:11px 20px;border-bottom:1px solid #F2F3F6;font-size:9.5px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:#A4ABB5">
+        <span>Sender · Subject</span><span>Category</span><span>AI confidence</span><span>Attachment</span><span>Status</span><span></span>
+      </div>
+      <sc-for list="{{ emails }}" as="e" hint-placeholder-count="6">
+        <div style="display:grid;grid-template-columns:2.5fr 1fr 1.2fr 0.9fr 1.1fr 0.7fr;gap:14px;padding:14px 20px;border-bottom:1px solid #F4F5F8;align-items:center;transition:background .12s ease" style-hover="background:#FAFBFC">
+          <div style="min-width:0"><div style="font-size:13px;font-weight:550;color:#14181F;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ e.sender }}</div><div style="font-size:12px;color:#828A97;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px">{{ e.subject }}</div></div>
+          <span style="display:inline-flex;align-items:center;gap:7px;font-size:12px;font-weight:500;color:#3A414C"><span style="width:6px;height:6px;border-radius:50%;background:{{ e.catColor }}"></span>{{ e.category }}</span>
+          <div style="display:flex;align-items:center;gap:9px"><div style="flex:1;height:3px;border-radius:999px;background:#EDEFF2;overflow:hidden"><div style="height:100%;width:{{ e.confPct }};background:{{ e.confColor }}"></div></div><span style="font-size:11px;font-weight:500;color:#6A727E;font-family:'IBM Plex Mono',monospace;width:30px;text-align:right">{{ e.confTxt }}</span></div>
+          <span style="font-size:11px;color:#828A97;font-family:'IBM Plex Mono',monospace">{{ e.attach }}</span>
+          <span style="{{ e.statusStyle }}">{{ e.status }}</span>
+          <button onClick="{{ e.onAction }}" style="{{ e.actionStyle }}" style-hover="border-color:#C9D2DC">{{ e.action }}</button>
+        </div>
+      </sc-for>
+      <div style="padding:12px 20px;font-size:11px;color:#99A0AB;font-family:'IBM Plex Mono',monospace">background ingest · outlook untouched · read-only mailbox bridge · 44 documents in today's batch</div>
+    </div>
+  </main>
+  </sc-if>
+
+  <!-- ============ 2a · PIPELINE ============ -->
+  <sc-if value="{{ isPipeline }}" hint-placeholder-val="0">
+  <main id="2a" style="padding:18px 26px 30px;scroll-margin-top:16px">
+    <div style="display:flex;gap:5px;margin-bottom:16px;flex-wrap:wrap;align-items:center">
+      <sc-for list="{{ laneChips }}" as="c" hint-placeholder-count="4"><button onClick="{{ c.onClick }}" style="{{ c.style }}" style-hover="background:#F2F3F6"><sc-if value="{{ c.dot }}" hint-placeholder-val="0"><span style="width:6px;height:6px;border-radius:50%;background:{{ c.dot }};display:inline-block"></span></sc-if>{{ c.label }}</button></sc-for>
+      <span style="margin-left:auto;font-size:11px;color:#99A0AB;font-family:'IBM Plex Mono',monospace">SLA from letter date · 7–10 biz days</span>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:14px;align-items:start">
+      <sc-for list="{{ stageCols }}" as="col" hint-placeholder-count="5">
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div style="display:flex;align-items:center;gap:8px;padding:0 2px 10px;border-bottom:1px solid #ECEEF1">
+            <span style="width:7px;height:7px;border-radius:2px;background:{{ col.barColor }}"></span>
+            <span style="font-size:11.5px;font-weight:600;letter-spacing:-.005em;color:#3A414C">{{ col.label }}</span>
+            <span style="margin-left:auto;font-size:11px;font-weight:500;color:#A4ABB5;font-family:'IBM Plex Mono',monospace">{{ col.count }}</span>
+          </div>
+          <sc-for list="{{ col.refs }}" as="r" hint-placeholder-count="2">
+            <div onClick="{{ r.onClick }}" style="{{ r.pipeCardStyle }}" style-hover="border-color:#D5DBE2;box-shadow:0 4px 14px rgba(16,24,40,.07);transform:translateY(-1px)">
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:6px">
+                <span style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;font-weight:500;color:#99A0AB">{{ r.id }}</span>
+                <span style="width:7px;height:7px;border-radius:50%;background:{{ r.specColor }}"></span>
+              </div>
+              <div style="font-size:12.5px;font-weight:600;color:#14181F;margin-top:7px;letter-spacing:-.01em">{{ r.fullName }}</div>
+              <div style="font-size:11px;color:#99A0AB;margin-top:1px">{{ r.reason }}</div>
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:11px">
+                <span style="font-size:10px;font-weight:500;color:{{ r.slaColor }};font-family:'IBM Plex Mono',monospace">{{ r.slaShort }}</span>
+                <span style="display:inline-flex;align-items:center;gap:5px;font-size:10px;color:{{ r.smsColor }}"><span style="width:5px;height:5px;border-radius:50%;background:{{ r.smsColor }}"></span>{{ r.smsLabel }}</span>
+              </div>
+              <sc-if value="{{ r.hasFlags }}" hint-placeholder-val="0"><div style="margin-top:9px;display:flex;gap:8px"><sc-for list="{{ r.flags }}" as="fl" hint-placeholder-count="1"><span style="font-family:'IBM Plex Mono',monospace;font-size:8.5px;font-weight:700;letter-spacing:.05em;color:{{ fl.color }}">{{ fl.text }}</span></sc-for></div></sc-if>
+            </div>
+          </sc-for>
+          <sc-if value="{{ col.empty }}" hint-placeholder-val="0"><div style="border:1px dashed #E4E7EC;border-radius:10px;padding:18px;text-align:center;font-size:11px;color:#C2C8D0">—</div></sc-if>
+        </div>
+      </sc-for>
+    </div>
+  </main>
+  </sc-if>
+
+  <!-- ============ 2b · CONTROL TOWER ============ -->
+  <sc-if value="{{ isTower }}" hint-placeholder-val="0">
+  <main id="2b" style="padding:18px 26px 30px;scroll-margin-top:16px">
+    <div style="display:flex;background:#fff;border:1px solid #ECEEF1;border-radius:12px;overflow:hidden;margin-bottom:16px;box-shadow:0 1px 2px rgba(16,24,40,.03)">
+      <sc-for list="{{ kpis }}" as="k" hint-placeholder-count="5">
+        <div style="{{ k.style }}">
+          <div style="display:flex;align-items:center;gap:7px"><span style="width:7px;height:7px;border-radius:2px;background:{{ k.color }}"></span><span style="font-size:10px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:#A4ABB5">{{ k.label }}</span></div>
+          <div style="font-size:23px;font-weight:600;letter-spacing:-.03em;color:{{ k.valueColor }};margin-top:6px;font-family:'IBM Plex Mono',monospace">{{ k.value }}</div>
+        </div>
+      </sc-for>
+    </div>
+    <div style="display:grid;grid-template-columns:200px 1fr;gap:16px;align-items:start">
+      <div style="background:#fff;border:1px solid #ECEEF1;border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:18px;box-shadow:0 1px 2px rgba(16,24,40,.03)">
+        <sc-for list="{{ railGroups }}" as="g" hint-placeholder-count="3">
+          <div>
+            <div style="font-size:9.5px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:#A4ABB5;margin-bottom:9px">{{ g.label }}</div>
+            <div style="display:flex;flex-direction:column;gap:1px">
+              <sc-for list="{{ g.items }}" as="it" hint-placeholder-count="3"><button onClick="{{ it.onClick }}" style="{{ it.style }}" style-hover="background:#F4F5F8"><span style="display:flex;align-items:center;gap:9px"><sc-if value="{{ it.dot }}" hint-placeholder-val="0"><span style="width:7px;height:7px;border-radius:50%;background:{{ it.dot }}"></span></sc-if>{{ it.label }}</span><span style="font-size:11px;color:#A4ABB5;font-family:'IBM Plex Mono',monospace">{{ it.count }}</span></button></sc-for>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+      <div style="background:#fff;border:1px solid #ECEEF1;border-radius:12px;overflow:hidden;box-shadow:0 1px 2px rgba(16,24,40,.03)">
+        <div style="display:grid;grid-template-columns:{{ towerCols }};gap:14px;padding:11px 18px;border-bottom:1px solid #F2F3F6;font-size:9.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#A4ABB5">
+          <span>Referral · Patient</span><span>Specialty · Routed</span><span>Captured</span><span>Lifecycle</span><span>SLA</span><span>SMS</span><span></span>
+        </div>
+        <sc-for list="{{ refs }}" as="r" hint-placeholder-count="6">
+          <div onClick="{{ r.onClick }}" style="{{ r.towerRowStyle }}" style-hover="background:#FAFBFC">
+            <div style="min-width:0">
+              <div style="display:flex;align-items:center;gap:8px"><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:500;color:#99A0AB">{{ r.id }}</span><sc-for list="{{ r.flags }}" as="fl" hint-placeholder-count="1"><span style="font-family:'IBM Plex Mono',monospace;font-size:8.5px;font-weight:700;letter-spacing:.05em;color:{{ fl.color }}">{{ fl.text }}</span></sc-for></div>
+              <div style="font-size:13px;font-weight:600;color:#14181F;margin-top:3px;letter-spacing:-.01em">{{ r.fullName }}</div>
+              <div style="font-size:11px;color:#99A0AB;margin-top:1px">{{ r.reason }}</div>
+            </div>
+            <div><div style="display:flex;align-items:center;gap:7px"><span style="width:6px;height:6px;border-radius:50%;background:{{ r.specColor }}"></span><span style="font-size:12px;font-weight:500;color:#3A414C">{{ r.specialty }}</span></div><div style="font-size:11px;color:#A4ABB5;margin-top:3px">{{ r.clinician }}</div></div>
+            <div><span style="display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:600;font-family:'IBM Plex Mono',monospace;color:{{ r.captureTag.color }};background:{{ r.captureTag.bg }};padding:3px 8px;border-radius:6px">{{ r.captureTag.label }}</span></div>
+            <div><div style="display:flex;gap:3px"><sc-for list="{{ r.stageSegs }}" as="s" hint-placeholder-count="5"><span style="height:3px;width:12px;border-radius:2px;background:{{ s.color }}"></span></sc-for></div><div style="font-size:10.5px;font-weight:500;color:#6A727E;margin-top:6px">{{ r.stageLabel }}</div></div>
+            <div><div style="height:3px;border-radius:999px;background:#EDEFF2;overflow:hidden"><div style="height:100%;width:{{ r.slaPct }};background:{{ r.slaColor }}"></div></div><div style="font-size:10.5px;font-weight:500;color:{{ r.slaColor }};margin-top:6px;font-family:'IBM Plex Mono',monospace">{{ r.slaShort }}</div></div>
+            <div><span style="display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:500;color:{{ r.smsColor }}"><span style="width:6px;height:6px;border-radius:50%;background:{{ r.smsColor }}"></span>{{ r.smsLabel }}</span></div>
+            <div style="text-align:right;color:#C2C8D0;font-size:14px">›</div>
+          </div>
+        </sc-for>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 18px;font-size:11px;color:#99A0AB;font-family:'IBM Plex Mono',monospace"><span>{{ refCount }} of 44 captured</span><span>dashboard ↔ pms in lockstep</span></div>
+      </div>
+    </div>
+  </main>
+  </sc-if>
+
+  <!-- ===== OVERLAY (pipeline) ===== -->
+  <sc-if value="{{ overlayOpen }}" hint-placeholder-val="0">
+  <div onClick="{{ closeOverlay }}" style="position:fixed;inset:0;background:rgba(20,24,31,.32);backdrop-filter:blur(2px);z-index:60;display:flex;align-items:center;justify-content:center;padding:32px">
+    <div onClick="{{ stop }}" style="width:min(940px,96vw);height:86vh;background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 24px 70px rgba(16,24,40,.24);display:flex;flex-direction:column;animation:ahPop .26s cubic-bezier(.22,1,.36,1)">
+      <div style="flex:1;min-height:0;display:flex">
+        <dc-import name="ReferralStructure" referral="{{ openRef }}" accent="{{ accent }}" layout="split" on-advance="{{ onAdvance }}" on-verify="{{ onVerify }}" on-retry="{{ onRetry }}" on-close="{{ closeOverlay }}" hint-size="100%,100%"></dc-import>
+      </div>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- ===== DRAWER (tower) ===== -->
+  <sc-if value="{{ drawerOpen }}" hint-placeholder-val="0">
+  <div onClick="{{ closeOverlay }}" style="position:fixed;inset:0;background:rgba(20,24,31,.32);backdrop-filter:blur(2px);z-index:60;display:flex;justify-content:flex-end">
+    <div onClick="{{ stop }}" style="width:min(600px,96vw);height:100%;background:#fff;box-shadow:-24px 0 70px rgba(16,24,40,.2);display:flex;flex-direction:column;animation:ahSlide .28s cubic-bezier(.22,1,.36,1)">
+      <div style="flex:1;min-height:0;display:flex">
+        <dc-import name="ReferralStructure" referral="{{ openRef }}" accent="{{ accent }}" layout="stack" on-advance="{{ onAdvance }}" on-verify="{{ onVerify }}" on-retry="{{ onRetry }}" on-close="{{ closeOverlay }}" hint-size="100%,100%"></dc-import>
+      </div>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- ===== REVIEW OVERLAY (from Inbox) ===== -->
+  <sc-if value="{{ reviewOpen }}" hint-placeholder-val="0">
+  <div onClick="{{ closeReview }}" style="position:fixed;inset:0;background:rgba(20,24,31,.32);backdrop-filter:blur(2px);z-index:60;display:flex;align-items:center;justify-content:center;padding:32px">
+    <div onClick="{{ stop }}" style="width:min(940px,96vw);height:86vh;background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 24px 70px rgba(16,24,40,.24);display:flex;flex-direction:column;animation:ahPop .26s cubic-bezier(.22,1,.36,1)">
+      <div style="flex:1;min-height:0;display:flex">
+        <dc-import name="ReferralStructure" referral="{{ reviewRef }}" accent="{{ accent }}" layout="split" on-advance="{{ onAdvance }}" on-verify="{{ onVerify }}" on-retry="{{ onRetry }}" on-close="{{ closeReview }}" hint-size="100%,100%"></dc-import>
+      </div>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- ===== TOAST ===== -->
+  <sc-if value="{{ toast }}" hint-placeholder-val="0">
+    <div style="position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:80;display:flex;align-items:center;gap:10px;background:#14181F;color:#fff;padding:11px 17px;border-radius:11px;box-shadow:0 16px 44px rgba(16,24,40,.28);animation:ahUp .22s ease;font-size:13px;font-weight:550">
+      <span style="color:#4ADE80">{{ toast.icon }}</span>{{ toast.msg }}
+    </div>
+  </sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1320,&quot;height&quot;:900},&quot;accent&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;default&quot;:&quot;#1E5E8B&quot;,&quot;options&quot;:[&quot;#1E5E8B&quot;,&quot;#14181F&quot;,&quot;#2D5FCC&quot;,&quot;#0E7490&quot;],&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Theme&quot;},&quot;defaultVariant&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;default&quot;:&quot;pipeline&quot;,&quot;options&quot;:[&quot;pipeline&quot;,&quot;tower&quot;],&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Theme&quot;}}">
+class Component extends DCLogic {
+  state = {
+    variant: null, view: 'queue', lane: 'all', search: '',
+    openId: null, reviewId: null, toast: null,
+    referrals: [
+      { id:'WSC-004', title:'Miss', name:'Kristyn Mcinherney-Grubb', specialty:'Gynaecology', clinician:'Dr Preeti Khillan', reason:'gynaecology assessment', stageIdx:1, slaDay:8, slaTotal:10, slaState:'due', sms:'sent', capture:'text', dob:'17/02/1998', medicare:'3507 986 883', mobile:'0451 105 681', clinic:'Moonee Ponds Super Clinic', letterDate:'27/06/2026', dup:3 },
+      { id:'WSC-013', title:'Ms', name:'Crystal Dahdah', specialty:'Gynaecology', clinician:'Dr Preeti Khillan', reason:'gynaecology (OCR — reason unclear)', stageIdx:0, slaDay:6, slaTotal:10, slaState:'ok', sms:'pending', capture:'ocr-img', dob:'11/12/1993', medicare:'3551 ????? ?', medicareConf:0.35, mobile:'0401 774 406', clinic:'Taylors Hill Medical Clinic', letterDate:'25/06/2026' },
+      { id:'WSC-020', title:'Master', name:'Seth De Silva', specialty:'Paediatrics', clinician:'Dr Raj Khillan', reason:'paediatric review (with mum)', stageIdx:2, slaDay:5, slaTotal:10, slaState:'ok', sms:'sent', capture:'text', dob:'03/04/2019', medicare:'4102 556 341', mobile:'0415 901 233', clinic:'Altona North GP', letterDate:'26/06/2026', dup:2 },
+      { id:'WSC-027', title:'Miss', name:'Hermione Francesca Moore', specialty:'Paediatrics', clinician:'Dr Rachel Binny', reason:'ADHD assessment (school request)', stageIdx:3, slaDay:5, slaTotal:10, slaState:'ok', sms:'sent', capture:'text', dob:'22/05/2016', medicare:'5567 331 201', mobile:'0416 334 552', clinic:'Sunbury Family Practice', letterDate:'16/06/2026' },
+      { id:'WSC-018', title:'Master', name:'Marc Allen-Dodson', specialty:'Paediatrics', clinician:'Dr Sohail Rana', reason:'possible neurodevelopmental disorder', stageIdx:0, slaDay:9, slaTotal:10, slaState:'due', sms:'pending', capture:'ocr', dob:'14/09/2018', medicare:'4204 ????? ?', medicareConf:0.58, mobile:'0417 660 884', clinic:'Point Cook Clinic', letterDate:'25/06/2026' },
+      { id:'WSC-036', title:'Mrs', name:'Ridhi Bakshi', specialty:'Pelvic Physio', clinician:'Dr Ranjana Rahman', reason:'pelvic floor / incontinence', stageIdx:1, slaDay:12, slaTotal:10, slaState:'breached', sms:'failed', capture:'ocr', dob:'08/02/1989', medicare:'4661 ????? ?', medicareConf:0.5, mobile:'0414 778 102', clinic:'Sydenham Medical Centre', letterDate:'22/06/2026' },
+      { id:'WSC-002', title:'Miss', name:'Duygu Aygenc', specialty:'Gynaecology', clinician:'Dr Preeti Khillan', reason:'gynaecology (presenting problem)', stageIdx:2, slaDay:7, slaTotal:10, slaState:'ok', sms:'sent', capture:'ocr', dob:'16/09/1999', medicare:'3532 970 702', medicareConf:0.72, mobile:'0412 921 383', clinic:'Glenroy Medical Centre', letterDate:'27/06/2026' },
+      { id:'WSC-025', title:'Miss', name:'Amelia Bunworth', specialty:'Paediatrics', clinician:'Dr Raj Khillan', reason:'behaviour issues', stageIdx:4, slaDay:6, slaTotal:10, slaState:'done', sms:'sent', capture:'text', dob:'26/03/2017', medicare:'2231 990 873', mobile:'0413 220 145', clinic:'Caroline Springs GP', letterDate:'26/06/2026' },
+    ],
+  };
+  LANES = { 'Paediatrics':{c:'#0284C7',t:'#0369A1'}, 'Gynaecology':{c:'#DB2777',t:'#9D174D'}, 'Pelvic Physio':{c:'#7C3AED',t:'#6D28D9'} };
+  LIFE = ['New','Acknowledged','In PMS','Booked','Completed'];
+  TOWER_COLS = '1.7fr 1.3fr 0.9fr 1fr 1fr 0.85fr 0.3fr';
+
+  pick = (v) => this.setState({ variant:v, openId:null });
+  setView = (v) => this.setState({ view:v });
+  setLane = (k) => this.setState({ lane:k });
+  onSearch = (e) => this.setState({ search:e.target.value });
+  stop = (e) => e.stopPropagation();
+  select = (id) => this.setState({ openId:id });
+  closeOverlay = () => this.setState({ openId:null });
+  openReview = (id) => this.setState({ reviewId:id });
+  closeReview = () => this.setState({ reviewId:null });
+  flash = (icon,msg) => { this.setState({toast:{icon,msg}}); clearTimeout(this._t); this._t=setTimeout(()=>this.setState({toast:null}),2600); };
+
+  onVerify = (id) => this.setState(s=>({ referrals: s.referrals.map(r=> r.id===id ? {...r, medicareConf:1, medicare: r.medicare.includes('?')?'3551 042 806':r.medicare} : r) }), ()=>this.flash('✓','Identity verified · 3 of 3 matched'));
+  onRetry = (id) => this.setState(s=>({ referrals: s.referrals.map(r=> r.id===id ? {...r, sms:'sent'} : r) }), ()=>this.flash('✓','Acknowledgement SMS resent'));
+  onAdvance = (id) => {
+    const r=this.state.referrals.find(x=>x.id===id); if(!r) return;
+    let label='';
+    const next = this.state.referrals.map(x=>{
+      if(x.id!==id) return x;
+      let st=x.stageIdx, sms=x.sms;
+      if(st===0){ st=1; sms='sent'; label='Acknowledgement SMS sent · '+x.id; }
+      else if(st===1){ st=2; label='Entered in PMS · '+x.id; }
+      else if(st===2){ st=3; label='Marked as booked · '+x.id; }
+      else if(st===3){ st=4; label='Referral completed · '+x.id; }
+      return {...x, stageIdx:st, sms};
+    });
+    this.setState({ referrals:next }, ()=>this.flash('✓',label));
+  };
+
+  slaInfo(r){
+    if(r.slaState==='breached') return { pct:'100%', color:'#D8453B', short:'+'+(r.slaDay-r.slaTotal)+'d over' };
+    if(r.slaState==='done') return { pct:'100%', color:'#198F54', short:'closed' };
+    if(r.slaState==='due') return { pct:'82%', color:'#C2740B', short:'1d left' };
+    return { pct: Math.round(r.slaDay/r.slaTotal*100)+'%', color:'#198F54', short:(r.slaTotal-r.slaDay)+'d left' };
+  }
+  smsInfo(r){ if(r.sms==='sent') return {label:'Sent',color:'#198F54'}; if(r.sms==='failed') return {label:'Failed',color:'#D8453B'}; return {label:'Pending',color:'#A4ABB5'}; }
+  stageSegs(r){ const done=r.stageIdx>=4; return this.LIFE.map((l,i)=>({ color: i<=r.stageIdx ? (done?'#198F54':'#2B313B') : '#E6E9ED' })); }
+  flagList(r){
+    const out=[];
+    if(r.slaState==='breached') out.push({text:'OVERDUE',color:'#D8453B'});
+    if(r.capture==='ocr'||r.capture==='ocr-img') out.push({text:'OCR',color:'#C2740B'});
+    if(r.dup) out.push({text:'DUP×'+r.dup,color:'#7C3AED'});
+    return out;
+  }
+
+  decorate(r, accent){
+    const lane=this.LANES[r.specialty]||this.LANES.Paediatrics;
+    const sla=this.slaInfo(r); const sms=this.smsInfo(r);
+    return {
+      ...r, accent, fullName:(r.title?r.title+' ':'')+r.name,
+      specColor:lane.c, specText:lane.t,
+      stageLabel:this.LIFE[r.stageIdx], stageSegs:this.stageSegs(r),
+      slaPct:sla.pct, slaColor:sla.color, slaShort:sla.short,
+      smsLabel:sms.label, smsColor:sms.color,
+      flags:this.flagList(r), hasFlags:this.flagList(r).length?1:0,
+      captureTag: r.capture==='ocr-img'?{label:'Image · OCR',color:'#9D174D',bg:'#FBE9F1'}:(r.capture==='ocr'?{label:'Scan · OCR',color:'#92400E',bg:'#FBF1D6'}:{label:'PDF · text',color:'#5A6573',bg:'#F2F3F6'}),
+      onClick:()=>this.select(r.id),
+      pipeCardStyle:`background:#fff;border:1px solid ${r.slaState==='breached'?'#EFCFCF':'#ECEEF1'};border-radius:10px;padding:12px 13px;cursor:pointer;transition:transform .14s ease,box-shadow .14s ease,border-color .14s ease`,
+      towerRowStyle:`display:grid;grid-template-columns:${this.TOWER_COLS};gap:14px;padding:13px 18px;border-bottom:1px solid #F4F5F8;align-items:center;cursor:pointer;transition:background .12s ease;${r.slaState==='breached'?'background:#FDF5F4':''}`,
+    };
+  }
+
+  renderVals(){
+    const accent = this.props.accent || '#1E5E8B';
+    const variant = this.state.variant || this.props.defaultVariant || 'pipeline';
+    const { view, lane, search } = this.state;
+    const onQueue = view==='queue';
+    const isPipeline=variant==='pipeline'&&onQueue, isTower=variant==='tower'&&onQueue;
+
+    const hubTabs = ['All Tasks','Actions','Voicemail','Referrals','Email','SMS'].map(l=>({ label:l,
+      style: l==='Referrals'
+        ? 'font-size:12.5px;font-weight:600;color:#14181F;padding:12px 11px;box-shadow:inset 0 -2px 0 '+accent
+        : 'font-size:12.5px;font-weight:450;color:#99A0AB;padding:12px 11px;cursor:default' }));
+
+    const viewTabs = [{k:'queue',l:'Referral Queue'},{k:'inbox',l:'Triage Inbox'}].map(t=>({ label:t.l, onClick:()=>this.setView(t.k),
+      style:`background:none;border:0;padding:0 0 10px;font-size:13px;font-weight:550;cursor:pointer;transition:color .12s;${view===t.k?'color:#14181F;box-shadow:inset 0 -2px 0 '+accent:'color:#A4ABB5'}` }));
+    const showInbox = view==='inbox';
+
+    const sw=[{v:'pipeline',id:'2a',name:'Pipeline'},{v:'tower',id:'2b',name:'Control Tower'}];
+    const switcher = sw.map((o,i)=>{ const on=variant===o.v; return { id:o.id, name:o.name, onClick:()=>this.pick(o.v),
+      style:`display:flex;align-items:center;gap:7px;padding:8px 13px;font-size:12.5px;font-weight:550;cursor:pointer;border:0;transition:background .12s;${i>0?'border-left:1px solid #E4E7EC;':''}${on?'background:#14181F;color:#fff':'background:#fff;color:#6A727E'}`,
+      idStyle:`font-family:'IBM Plex Mono',monospace;font-size:9.5px;font-weight:500;padding:1px 5px;border-radius:4px;${on?'background:rgba(255,255,255,.15);color:#fff':'background:#F2F3F6;color:#A4ABB5'}` }; });
+
+    const laneDefs=[{k:'all',l:'All',dot:0},{k:'Paediatrics',l:'Paeds',dot:'#0284C7'},{k:'Gynaecology',l:'Gynae',dot:'#DB2777'},{k:'Pelvic Physio',l:'Pelvic',dot:'#7C3AED'},{k:'review',l:'Review',dot:0,warn:true}];
+    const laneChips=laneDefs.map(f=>{ const on=lane===f.k; return { label:f.l, dot:f.dot||0, onClick:()=>this.setLane(f.k),
+      style:`display:inline-flex;align-items:center;gap:6px;border:0;background:${on?(f.warn?'#FBEBEB':'#14181F'):'transparent'};color:${on?(f.warn?'#C2362F':'#fff'):(f.warn?'#C2362F':'#6A727E')};font-size:11.5px;font-weight:550;padding:6px 10px;border-radius:7px;cursor:pointer;transition:background .12s` }; });
+
+    let refsRaw = this.state.referrals.filter(r=>{
+      if(search){ const q=search.toLowerCase(); if(!(r.name.toLowerCase().includes(q)||r.id.toLowerCase().includes(q))) return false; }
+      if(lane==='review') return r.capture==='ocr'||r.capture==='ocr-img'||r.slaState==='breached'||r.dup;
+      if(lane!=='all') return r.specialty===lane;
+      return true;
+    });
+    const refs = refsRaw.map(r=>this.decorate(r,accent));
+
+    const stageBar=['#1D4ED8','#0891B2','#7C3AED','#DB2777','#198F54'];
+    const stageCols = this.LIFE.map((l,i)=>{ const cr=refs.filter(r=>r.stageIdx===i); return { label:l, count:cr.length, refs:cr, barColor:stageBar[i], empty: cr.length?0:1 }; });
+
+    const breached=this.state.referrals.filter(r=>r.slaState==='breached').length;
+    const review=this.state.referrals.filter(r=>r.capture==='ocr'||r.capture==='ocr-img'||r.slaState==='breached'||r.dup).length;
+    const awaitingVerify=this.state.referrals.filter(r=>(r.capture==='ocr'||r.capture==='ocr-img')&&r.stageIdx===0).length;
+    const kStyle=(first)=>`flex:1;padding:15px 20px;${first?'':'border-left:1px solid #F2F3F6'}`;
+    const kpis=[
+      {label:'Captured today', value:'44', color:'#1D4ED8', valueColor:'#14181F', style:kStyle(true)},
+      {label:'Due < 2 days', value:'6', color:'#C2740B', valueColor:'#B45309', style:kStyle()},
+      {label:'SLA breached', value:String(breached), color:'#D8453B', valueColor:'#C2362F', style:kStyle()},
+      {label:'Awaiting verify', value:'18', color:'#7C3AED', valueColor:'#6D28D9', style:kStyle()},
+      {label:'Completed today', value:'11', color:'#198F54', valueColor:'#198F54', style:kStyle()},
+    ];
+
+    const railItem=(k,label,count,dot)=>{ const on=lane===k; return { label, count, dot:dot||0, onClick:()=>this.setLane(k),
+      style:`display:flex;align-items:center;justify-content:space-between;border:0;background:${on?'#F2F4F7':'transparent'};color:${on?'#14181F':'#6A727E'};font-size:12px;font-weight:${on?600:450};padding:7px 9px;border-radius:7px;cursor:pointer;width:100%;text-align:left;transition:background .12s` }; };
+    const railGroups=[
+      { label:'Specialty lane', items:[ railItem('all','All lanes',44,0), railItem('Paediatrics','Paediatrics',20,'#0284C7'), railItem('Gynaecology','Gynaecology',14,'#DB2777'), railItem('Pelvic Physio','Pelvic physio',5,'#7C3AED') ] },
+      { label:'Attention', items:[ railItem('review','Needs review',review,'#D8453B') ] },
+    ];
+
+    const emailSeed=[
+      { sender:'Moonee Ponds Super Clinic', subject:'Re: Miss Kristyn Mcinherney-Grubb — referral', category:'Referral', conf:0.96, attach:'PDF·text', status:'Acknowledged', refId:'WSC-004' },
+      { sender:'Glenroy Medical Centre', subject:'Scanned referral — Miss Duygu Aygenc', category:'Referral', conf:0.62, attach:'scan·OCR', status:'Needs check', refId:'WSC-002' },
+      { sender:'Taylors Hill Medical Clinic', subject:'Referral (phone photo) — Ms Crystal Dahdah', category:'Referral', conf:0.55, attach:'img·OCR', status:'Needs check', refId:'WSC-013' },
+      { sender:'Point Cook Clinic', subject:'Referral — Master Marc Allen-Dodson', category:'Referral', conf:0.64, attach:'scan·OCR', status:'Needs check', refId:'WSC-018' },
+      { sender:'Melbourne Pathology', subject:'Pathology result — A. Bunworth', category:'Result', conf:0.99, attach:'PDF·text', status:'Filed' },
+      { sender:'MedSupplies AU', subject:'Spring promo — 20% off consumables', category:'Marketing', conf:0.97, attach:'—', status:'Ignored' },
+      { sender:'Unknown sender', subject:'20260626_112708.jpg', category:'Needs check', conf:0.0, attach:'img·OCR', status:'Could not read' },
+    ];
+    const catC={Referral:'#198F54',Result:'#0284C7',Admin:'#6A727E',Marketing:'#C2740B','Needs check':'#D8453B'};
+    const stC={Acknowledged:['#15693E','#E7F4ED'],Structured:['#15693E','#E7F4ED'],Filed:['#6A727E','#F2F3F6'],'Needs check':['#92400E','#FBF1D6'],'Could not read':['#C2362F','#FBE9E8'],Ignored:['#A4ABB5','#F2F3F6']};
+    const catDefs=[{k:'all',l:'All'},{k:'Referral',l:'Referral',c:44},{k:'Result',l:'Result',c:8},{k:'Marketing',l:'Marketing',c:3},{k:'Needs check',l:'Needs check',c:18}];
+    const catFilters=catDefs.map(f=>{ const on=this.state.lane===f.k; return { label:f.l, count:f.c||0, onClick:()=>this.setLane(f.k),
+      style:`display:inline-flex;align-items:center;gap:6px;border:0;background:${on?'#14181F':'transparent'};color:${on?'#fff':'#6A727E'};font-size:11.5px;font-weight:550;padding:6px 11px;border-radius:7px;cursor:pointer;transition:background .12s`,
+      countStyle:`font-size:10px;font-weight:500;font-family:'IBM Plex Mono',monospace;padding:0 5px;border-radius:4px;background:${on?'rgba(255,255,255,.16)':'#F2F3F6'};color:${on?'#fff':'#A4ABB5'}` }; });
+    let emails=emailSeed.filter(e=> this.state.lane==='all'||this.state.lane==='review'||e.category===this.state.lane);
+    if(search){ const q=search.toLowerCase(); emails=emails.filter(e=> e.sender.toLowerCase().includes(q)||e.subject.toLowerCase().includes(q)); }
+    emails=emails.map(e=>{ const sc=stC[e.status]||['#6A727E','#F2F3F6']; const canR=e.category==='Referral'&&e.refId; const conf=e.conf;
+      return { ...e, catColor:catC[e.category]||'#6A727E',
+        confPct: conf===0?'5%':Math.round(conf*100)+'%', confTxt: conf===0?'—':Math.round(conf*100)+'%',
+        confColor: conf===0?'#D8453B':conf>=0.9?'#198F54':conf>=0.75?accent:'#C2740B',
+        statusStyle:`font-size:11px;font-weight:550;color:${sc[0]};background:${sc[1]};padding:3px 9px;border-radius:6px;justify-self:start`,
+        action: canR?'Review':(e.status==='Needs check'?'Verify':'View'),
+        actionStyle:`border:1px solid ${canR?'#D6E2EE':'#E4E7EC'};background:#fff;color:${canR?accent:'#99A0AB'};font-size:11.5px;font-weight:550;padding:6px 12px;border-radius:7px;cursor:pointer;transition:border-color .12s`,
+        onAction: e.refId ? ()=>this.openReview(e.refId) : ()=>this.flash('!','No text extracted — open the original to key it in manually') };
+    });
+
+    const openRef = this.state.referrals.find(r=>r.id===this.state.openId) || null;
+    const reviewRef = this.state.referrals.find(r=>r.id===this.state.reviewId) || null;
+
+    return {
+      accent, isPipeline, isTower, showInbox,
+      hubTabs, viewTabs, switcher, laneChips, refs, refCount:refs.length, stageCols, kpis, railGroups,
+      catFilters, emails, towerCols:this.TOWER_COLS, search,
+      openRef,
+      overlayOpen: isPipeline && this.state.openId ? 1 : 0,
+      drawerOpen: isTower && this.state.openId ? 1 : 0,
+      onAdvance:this.onAdvance, onVerify:this.onVerify, onRetry:this.onRetry,
+      closeOverlay:this.closeOverlay, stop:this.stop, onSearch:this.onSearch,
+      reviewRef, reviewOpen: this.state.reviewId?1:0, openReview:this.openReview, closeReview:this.closeReview,
+      toast:this.state.toast,
+    };
+  }
+}
+</script>
+</body>
+</html>
